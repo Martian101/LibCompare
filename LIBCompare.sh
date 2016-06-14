@@ -22,9 +22,19 @@ if [[ -d /tmp/LIBCompare ]];then
     rm -rf /tmp/LIBCompare
 fi
 
+function getLibDir() {
+    find . -name 'lib' | while read line; do
+        cnt=`ls -1 $line/*.jar 2>/dev/null | wc -l`
+           if [ $cnt != 0 ];then 
+                    echo $line
+           fi 
+        done
+}
+
 function getLibs()
 {
-    cd $1/lib  
+    cd $1  
+    cd $(getLibDir)
     local -a libs
     libs=`ls *`
     echo $libs
@@ -55,13 +65,14 @@ fi
 cd $YARD
 V1=${V1##*/}
 V2=${V2##*/}
-unzip -q $V1
-unzip -q $V2
-V1=${V1%.*}
-V2=${V2%.*}
+V1_DIR=${V1%.*}
+V2_DIR=${V2%.*}
 
-lib1=$(getLibs $V1)
-lib2=$(getLibs $V2)
+unzip -q -d $V1_DIR $V1
+unzip -q -d $V2_DIR $V2
+
+lib1=$(getLibs $V1_DIR)
+lib2=$(getLibs $V2_DIR)
 
 echo -e "********************************************"
 echo -e "***************Jar包冲突检测****************"
